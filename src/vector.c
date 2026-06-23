@@ -164,3 +164,60 @@ int double_vector_norm2(const double_vector_t* v, double* result){
     return 1;
 }
 
+int double_vector_distance2(const double_vector_t* a, const double_vector_t* b, double* out){
+    if (!double_vector_is_valid(a) || !double_vector_is_valid(b) || out==NULL){
+        return 0;
+    }
+    if (a->size != b->size ){
+        return 0;
+    }
+
+    double sum = 0.;
+    double diff;
+    for (size_t i=0; i<a->size;i++){
+        diff = a->data[i]-b->data[i];
+        sum += diff*diff;
+    }
+    *out = sqrt(sum);
+    
+
+    return 1;
+}
+
+int double_vector_copy(const double_vector_t* src, double_vector_t* dst){
+    if (!double_vector_is_valid(src) || !double_vector_is_valid(dst)){
+        return 0;
+    }
+    if (src->size != dst->size ){
+        return 0;
+    }
+
+    for (size_t i=0; i<src->size;i++){
+
+       dst->data[i] = src->data[i];
+    }
+    return 1;
+}
+
+int double_vector_fill_const(double_vector_t *v, double value){
+
+    if(!double_vector_is_valid(v)){
+        return 0;
+    }
+    for (size_t i=0;i<v->size;i++){
+        v->data[i] = value;
+    }
+    return 1;
+}
+
+int double_vector_sum(const double_vector_t* v, double* result){
+    if(!double_vector_is_valid(v) || result==NULL){
+        return 0;
+    }
+    double sum = 0.;
+    for (size_t i=0;i<v->size;i++){
+        sum += v->data[i];
+    }
+    *result = sum;
+    return 1;
+}

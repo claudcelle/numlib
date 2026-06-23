@@ -28,5 +28,9 @@ int double_vector_dotproduct(const double_vector_t *a, const double_vector_t *b,
 int double_vector_norm2(const double_vector_t*, double*);
 
 int double_vector_distance2(const double_vector_t*, const double_vector_t*, double*);
+int double_vector_copy(const double_vector_t*, double_vector_t*);
+int double_vector_fill_const(double_vector_t *, double );
+
+int double_vector_sum(const double_vector_t*, double*);
 
 #endif
