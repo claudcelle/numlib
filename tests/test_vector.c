@@ -13,7 +13,9 @@ static MunitResult test_double_vector_add(const MunitParameter params[], void* u
 static MunitResult test_double_vector_scale(const MunitParameter params[], void* user_data);
 static MunitResult test_double_vector_size(const MunitParameter params[], void* user_data);
 static MunitResult test_double_vector_axpy(const MunitParameter params[], void* user_data);
-
+static MunitResult test_double_vector_dotproduct(const MunitParameter params[], void* user_data);
+static MunitResult test_double_vector_norm2(const MunitParameter params[], void* user_data);
+static MunitResult test_double_vector_weird_size_zero(const MunitParameter params[], void* user_data);
 
 
 static MunitTest tests[] = {
@@ -28,6 +30,9 @@ static MunitTest tests[] = {
     { "/double_vector_scale",test_double_vector_scale, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
     { "/double_vector_size",test_double_vector_size, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
     { "/double_vector_axpy",test_double_vector_axpy, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+    { "/double_vector_dotproduct",test_double_vector_dotproduct, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+    { "/double_vector_norm2",test_double_vector_norm2, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+    { "/double_vector_weird_size_zero",test_double_vector_weird_size_zero, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
     { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
 
@@ -68,7 +73,6 @@ static MunitResult test_double_vector_create_size_zero(const MunitParameter para
 
     return MUNIT_OK;
 }
-
 static MunitResult test_double_vector_free(const MunitParameter params[], void* user_data){
     (void) params;
     (void) user_data;
@@ -78,8 +82,6 @@ static MunitResult test_double_vector_free(const MunitParameter params[], void* 
     munit_assert_size(v.size, ==, 0);
     return MUNIT_OK;
 }
-
-
 static MunitResult test_double_vector_set(const MunitParameter params[], void* user_data){
     (void) params;
     (void) user_data;
@@ -91,7 +93,6 @@ static MunitResult test_double_vector_set(const MunitParameter params[], void* u
     return MUNIT_OK;
     
 }
-
 static MunitResult test_double_vector_get(const MunitParameter params[], void* user_data){
     (void) params;
     (void) user_data;
@@ -108,8 +109,6 @@ static MunitResult test_double_vector_get(const MunitParameter params[], void* u
     return MUNIT_OK;
     
 }
-
-
 static MunitResult test_double_vector_fill_from_array(const MunitParameter params[], void* user_data){
     (void) params;
     (void) user_data;
@@ -123,9 +122,12 @@ static MunitResult test_double_vector_fill_from_array(const MunitParameter param
     munit_assert_int(double_vector_fill_from_array(NULL,values,3), ==, 0);
     munit_assert_int(double_vector_fill_from_array(&v,NULL,3), ==, 0);
 
-    double_vector_t w = {3, values};
+    
     double new_values[] = {4.0,5.0,6.0};
-    munit_assert_int(double_vector_fill_from_array(&w,new_values,3), ==, 1);
+    munit_assert_int(double_vector_fill_from_array(&v,new_values,3), ==, 1);
+    munit_assert_double(v.data[0], ==, 4.0);
+    munit_assert_double(v.data[1], ==, 5.0);
+    munit_assert_double(v.data[2], ==, 6.0);
     double_vector_free(&v);
     munit_assert_int(double_vector_fill_from_array(&v,values,3), ==, 0);
 
@@ -205,7 +207,6 @@ static MunitResult test_double_vector_scale(const MunitParameter params[], void*
 
     return MUNIT_OK;
 }
-
 static MunitResult test_double_vector_size(const MunitParameter params[], void* user_data){
     (void) params;
     (void) user_data;
@@ -213,6 +214,7 @@ static MunitResult test_double_vector_size(const MunitParameter params[], void* 
     double_vector_t v = double_vector_create(3);
     double_vector_t empty = {0};
 
+    munit_assert_size(double_vector_size(&v), ==, 3);
     munit_assert_size(double_vector_size(NULL), ==, 0);
     munit_assert_size(double_vector_size(&empty), ==, 0);
     
@@ -222,7 +224,6 @@ static MunitResult test_double_vector_size(const MunitParameter params[], void* 
 
     return MUNIT_OK;
 }
-
 static MunitResult test_double_vector_axpy(const MunitParameter params[], void* user_data){
     (void) params;
     (void) user_data;
@@ -277,6 +278,93 @@ static MunitResult test_double_vector_axpy(const MunitParameter params[], void* 
     double_vector_free(&wrong_size);
 
 
+
+    return MUNIT_OK;
+}
+
+static MunitResult test_double_vector_dotproduct(const MunitParameter params[], void* user_data){
+    (void) params;
+    (void) user_data;
+
+    double_vector_t x = double_vector_create(3);
+    double_vector_t y = double_vector_create(3);
+    double_vector_t empty = {0};
+    double_vector_t wrong_size = double_vector_create(4);
+    double result;
+
+    double x_vals[] = {1.0,2.0,3.0};
+    double y_vals[] = {4.0,5.0,6.0};
+    double_vector_fill_from_array(&x,x_vals,3);
+    double_vector_fill_from_array(&y,y_vals,3);
+
+    munit_assert_int(double_vector_dotproduct(&x,&y,&result), ==, 1);
+    munit_assert_double(result, ==, 32.0);
+
+    munit_assert_int(double_vector_dotproduct(&x,&y,NULL), ==, 0);
+    munit_assert_int(double_vector_dotproduct(NULL,&y,&result), ==, 0);
+    munit_assert_int(double_vector_dotproduct(&x,NULL,&result), ==, 0);
+
+    munit_assert_int(double_vector_dotproduct(&empty,&y,&result), ==, 0);
+    munit_assert_int(double_vector_dotproduct(&x,&empty,&result), ==, 0);
+
+    munit_assert_int(double_vector_dotproduct(&x,&wrong_size,&result), ==, 0);
+    munit_assert_int(double_vector_dotproduct(&wrong_size,&y,&result), ==, 0);
+
+
+    double_vector_free(&x);
+    double_vector_free(&y);
+    double_vector_free(&empty);
+    double_vector_free(&wrong_size);
+
+    return MUNIT_OK;
+
+}
+
+static MunitResult test_double_vector_norm2(const MunitParameter params[], void* user_data){
+    (void) params;
+    (void) user_data;
+
+    double_vector_t x = double_vector_create(3);
+    double_vector_t empty = {0};
+    double result;
+
+    double x_vals[] = {1.0,2.0,3.0};
+    double_vector_fill_from_array(&x,x_vals,3);
+
+    munit_assert_int(double_vector_norm2(&x,&result), ==, 1);
+    munit_assert_double_equal(result, sqrt(14.0), 6);
+
+    munit_assert_int(double_vector_norm2(&x,NULL), ==, 0);
+    munit_assert_int(double_vector_norm2(NULL,&result), ==, 0);
+
+    munit_assert_int(double_vector_norm2(&empty,&result), ==, 0);
+
+    double_vector_free(&x);
+    double_vector_free(&empty);
+
+    return MUNIT_OK;
+}
+
+static MunitResult test_double_vector_weird_size_zero(const MunitParameter params[], void* user_data){
+    (void) params;
+    (void) user_data;
+
+    double raw[] = {1.0};
+    double values[] = {2.0};
+    double_vector_t weird = {0, raw};
+    double_vector_t valid = double_vector_create(1);
+    double result;
+
+    double_vector_fill_from_array(&valid,values,1);
+
+    munit_assert_int(double_vector_scale(&weird,2.0,&valid), ==, 0);
+    munit_assert_int(double_vector_add(&weird,&valid,&valid), ==, 0);
+    munit_assert_int(double_vector_fill_from_array(&weird,values,0), ==, 0);
+    munit_assert_int(double_vector_axpy(2.0,&weird,&valid,&valid), ==, 0);
+    munit_assert_int(double_vector_dotproduct(&weird,&valid,&result), ==, 0);
+    munit_assert_int(double_vector_norm2(&weird,&result), ==, 0);
+
+    double_vector_free(&valid);
 
     return MUNIT_OK;
 }

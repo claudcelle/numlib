@@ -4,9 +4,12 @@
 #include <math.h>
 
 
+static int double_vector_is_valid(const double_vector_t *v){
+    return v != NULL && v->data != NULL && v->size != 0;
+}
 
 int double_vector_scale(const double_vector_t *v, double scalar, double_vector_t *out){
-    if(v==NULL||out==NULL||v->data==NULL||out->data==NULL||v->size!=out->size){
+    if(!double_vector_is_valid(v)||!double_vector_is_valid(out)||v->size!=out->size){
         return 0;
     }
     for (size_t i=0;i<v->size;i++){
@@ -14,8 +17,6 @@ int double_vector_scale(const double_vector_t *v, double scalar, double_vector_t
     }
     return 1;
 }
-
-
 
 double_vector_t double_vector_create(size_t size){
     double_vector_t v = {0};
@@ -84,8 +85,7 @@ size_t double_vector_size(const double_vector_t* v){
 }
 
 int double_vector_fill_from_array(double_vector_t *v,const double *array,size_t size){
-    if (v == NULL || 
-        v->data == NULL || 
+    if (!double_vector_is_valid(v) || 
         array == NULL|| 
         v->size!=size){
 
@@ -100,10 +100,7 @@ int double_vector_fill_from_array(double_vector_t *v,const double *array,size_t 
 
 int double_vector_add(const double_vector_t *a, const double_vector_t *b, double_vector_t *out){
 
-    if (a == NULL || b == NULL || out==NULL){
-        return 0;
-    }
-    if (a->data == NULL || b->data == NULL || out->data==NULL){
+    if (!double_vector_is_valid(a) || !double_vector_is_valid(b) || !double_vector_is_valid(out)){
         return 0;
     }
     if (a->size != b->size || 
@@ -119,11 +116,8 @@ int double_vector_add(const double_vector_t *a, const double_vector_t *b, double
 
 }
 
-int double_vector_axpy(double a, double_vector_t *x, double_vector_t *y, double_vector_t *out){
-    if (x == NULL || y == NULL || out==NULL){
-        return 0;
-    }
-    if (x->data == NULL || y->data == NULL || out->data==NULL){
+int double_vector_axpy(double a, const double_vector_t *x, const double_vector_t *y, double_vector_t *out){
+    if (!double_vector_is_valid(x) || !double_vector_is_valid(y) || !double_vector_is_valid(out)){
         return 0;
     }
     if (x->size != y->size || 
@@ -131,9 +125,42 @@ int double_vector_axpy(double a, double_vector_t *x, double_vector_t *y, double_
             return 0;
         }
     
+    
     for (size_t i=0; i<out->size;i++){
 
        out->data[i] = (a*x->data[i])+y->data[i];
     }
     return 1;
 }
+
+int double_vector_dotproduct(const double_vector_t *a, const double_vector_t *b, double *out){
+    if (!double_vector_is_valid(a) || !double_vector_is_valid(b) || out==NULL){
+        return 0;
+    }
+    if (a->size != b->size ){
+        return 0;
+    }
+        
+    double sum = 0.;
+    for (size_t i=0; i<a->size;i++){
+
+       sum += a->data[i]*b->data[i];
+
+    }
+    *out=sum;
+
+    return 1;
+}
+
+int double_vector_norm2(const double_vector_t* v, double* result){
+    if (!double_vector_is_valid(v) || result==NULL){
+        return 0;
+    }
+    double sum = 0.;
+    for (size_t i=0; i<v->size;i++){
+        sum += v->data[i]*v->data[i];
+    }
+    *result = sqrt(sum);
+    return 1;
+}
+

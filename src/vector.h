@@ -23,6 +23,10 @@ int double_vector_fill_from_array(double_vector_t *v,const double *array, size_t
 size_t double_vector_size(const double_vector_t*);
 
 int double_vector_scale(const double_vector_t*, double, double_vector_t*);
-int double_vector_axpy(double a, double_vector_t*, double_vector_t*, double_vector_t*);
+int double_vector_axpy(double a, const double_vector_t*, const double_vector_t*, double_vector_t*);
+int double_vector_dotproduct(const double_vector_t *a, const double_vector_t *b, double *out);
+int double_vector_norm2(const double_vector_t*, double*);
+
+int double_vector_distance2(const double_vector_t*, const double_vector_t*, double*);
 
 #endif
