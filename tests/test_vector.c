@@ -22,6 +22,12 @@ static MunitResult test_double_vector_dist2(const MunitParameter params[], void*
 static MunitResult test_double_vector_copy(const MunitParameter params[], void* user_data);
 static MunitResult test_double_vector_fill_const(const MunitParameter params[], void* user_data);
 static MunitResult test_double_vector_sum(const MunitParameter params[], void* user_data);
+static MunitResult test_double_vector_mean(const MunitParameter params[], void* user_data);
+static MunitResult test_double_vector_variance(const MunitParameter params[], void* user_data);
+static MunitResult test_double_vector_min(const MunitParameter params[], void* user_data);
+static MunitResult test_double_vector_max(const MunitParameter params[], void* user_data);
+static MunitResult test_double_vector_argmin(const MunitParameter params[], void* user_data);
+static MunitResult test_double_vector_argmax(const MunitParameter params[], void* user_data);
 
 
 static MunitTest tests[] = {
@@ -43,6 +49,12 @@ static MunitTest tests[] = {
     { "/double_vector_copy",test_double_vector_copy, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
     { "/double_vector_fill_const",test_double_vector_fill_const, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
     { "/double_vector_sum",test_double_vector_sum, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+    { "/double_vector_mean",test_double_vector_mean, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+    { "/double_vector_variance",test_double_vector_variance, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+    { "/double_vector_min",test_double_vector_min, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+    { "/double_vector_max",test_double_vector_max, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+    { "/double_vector_argmin",test_double_vector_argmin, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+    { "/double_vector_argmax",test_double_vector_argmax, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
     { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
 
@@ -57,6 +69,235 @@ static const MunitSuite suite = {
 int main(int argc, char* argv[]) {
     return munit_suite_main(&suite, NULL, argc, argv);
 }
+
+static MunitResult test_double_vector_min(const MunitParameter params[], void* user_data){
+
+    (void) params;
+    (void) user_data;
+
+    double_vector_t empty = {0};
+    double a_vals[] = {1.0,2.0,3.0};
+    double_vector_t a = double_vector_create(3);
+    double_vector_fill_from_array(&a,a_vals,3);
+    double b_vals[] = {1.0,0.0,3.0};
+    double_vector_t b = double_vector_create(3);
+    double_vector_fill_from_array(&b,b_vals,3);
+    double c_vals[] = {1.0,-1.0,3.0};
+    double_vector_t c = double_vector_create(3);
+    double_vector_fill_from_array(&c,c_vals,3);
+    double result;
+    
+    munit_assert_int(double_vector_min(&a,&result), ==, 1);
+    munit_assert_double_equal(result, 1.0, 6);
+    
+    munit_assert_int(double_vector_min(&b,&result), ==, 1);
+    munit_assert_double_equal(result, 0.0, 6);
+    
+    munit_assert_int(double_vector_min(&c,&result), ==, 1);
+    munit_assert_double_equal(result, -1.0, 6);
+
+    munit_assert_int(double_vector_min(&a,NULL), ==, 0);
+    munit_assert_int(double_vector_min(NULL,&result), ==, 0);
+    munit_assert_int(double_vector_min(&empty,&result), ==, 0);
+
+
+    double_vector_free(&b);
+    double_vector_free(&c);
+    double_vector_free(&a);
+
+    return MUNIT_OK;
+}
+
+static MunitResult test_double_vector_max(const MunitParameter params[], void* user_data){
+
+    (void) params;
+    (void) user_data;
+
+    double_vector_t empty = {0};
+    double a_vals[] = {1.0,2.0,3.0};
+    double_vector_t a = double_vector_create(3);
+    double_vector_fill_from_array(&a,a_vals,3);
+    double b_vals[] = {-1.0,0.0,-3.0};
+    double_vector_t b = double_vector_create(3);
+    double_vector_fill_from_array(&b,b_vals,3);
+    double c_vals[] = {-1.0,-2.0,-3.0};
+    double_vector_t c = double_vector_create(3);
+    double_vector_fill_from_array(&c,c_vals,3);
+    double result;
+
+    munit_assert_int(double_vector_max(&a,&result), ==, 1);
+    munit_assert_double_equal(result, 3.0, 6);
+
+    munit_assert_int(double_vector_max(&b,&result), ==, 1);
+    munit_assert_double_equal(result, 0.0, 6);
+
+    munit_assert_int(double_vector_max(&c,&result), ==, 1);
+    munit_assert_double_equal(result, -1.0, 6);
+
+    munit_assert_int(double_vector_max (&a,NULL), ==, 0);
+    munit_assert_int(double_vector_max (NULL,&result), ==, 0);
+    munit_assert_int(double_vector_max (&empty,&result), ==, 0);
+
+
+    double_vector_free(&b);
+    double_vector_free(&c);
+    double_vector_free(&a);
+
+    return MUNIT_OK;
+}
+
+static MunitResult test_double_vector_argmin(const MunitParameter params[], void* user_data){
+
+    (void) params;
+    (void) user_data;
+
+    double_vector_t empty = {0};
+    double a_vals[] = {1.0,2.0,3.0};
+    double_vector_t a = double_vector_create(3);
+    double_vector_fill_from_array(&a,a_vals,3);
+    double b_vals[] = {1.0,0.0,3.0};
+    double_vector_t b = double_vector_create(3);
+    double_vector_fill_from_array(&b,b_vals,3);
+    double c_vals[] = {-1.0,-2.0,-3.0};
+    double_vector_t c = double_vector_create(3);
+    double_vector_fill_from_array(&c,c_vals,3);
+
+    double d_vals[] = {-1.0,-2.0,-3.0,-3.};
+    double_vector_t d = double_vector_create(4);
+    double_vector_fill_from_array(&d,d_vals,4);
+    size_t result;
+    
+    munit_assert_int(double_vector_argmin(&a,&result), ==, 1);
+    munit_assert_size(result, == , 0);
+
+    munit_assert_int(double_vector_argmin(&b,&result), ==, 1);
+    munit_assert_size(result, == , 1);
+    
+    munit_assert_int(double_vector_argmin(&c,&result), ==, 1);
+    munit_assert_size(result, == , 2);
+
+    munit_assert_int(double_vector_argmin(&d,&result), ==, 1);
+    munit_assert_size(result, == , 2);
+
+    munit_assert_int(double_vector_argmin (&a,NULL), ==, 0);
+    munit_assert_int(double_vector_argmin (NULL,&result), ==, 0);
+    munit_assert_int(double_vector_argmin (&empty,&result), ==, 0);
+
+
+    double_vector_free(&b);
+    double_vector_free(&c);
+    double_vector_free(&a);
+    double_vector_free(&d);
+
+
+    return MUNIT_OK;
+}
+
+static MunitResult test_double_vector_argmax(const MunitParameter params[], void* user_data){
+    (void) params;
+    (void) user_data;
+
+    double_vector_t empty = {0};
+    double a_vals[] = {1.0,2.0,3.0};
+    double_vector_t a = double_vector_create(3);
+    double_vector_fill_from_array(&a,a_vals,3);
+    double b_vals[] = {1.0,0.0,-3.0};
+    double_vector_t b = double_vector_create(3);
+    double_vector_fill_from_array(&b,b_vals,3);
+    double c_vals[] = {-1.0,2.0,-3.0};
+    double_vector_t c = double_vector_create(3);
+    double_vector_fill_from_array(&c,c_vals,3);
+    double d_vals[] = {-1.0,-2.0,-3.0,-1.};
+    double_vector_t d = double_vector_create(4);
+    double_vector_fill_from_array(&d,d_vals,4);
+
+    size_t result;
+    
+    munit_assert_int(double_vector_argmax(&a,&result), ==, 1);
+    munit_assert_size(result, == , 2);
+
+    munit_assert_int(double_vector_argmax(&b,&result), ==, 1);
+    munit_assert_size(result, == , 0);
+
+    munit_assert_int(double_vector_argmax(&c,&result), ==, 1);
+    munit_assert_size(result, == , 1);
+
+    munit_assert_int(double_vector_argmax(&d,&result), ==, 1);
+    munit_assert_size(result, == , 0);
+
+    munit_assert_int(double_vector_argmax (&a,NULL), ==, 0);
+    munit_assert_int(double_vector_argmax (NULL,&result), ==, 0);
+    munit_assert_int(double_vector_argmax (&empty,&result), ==, 0);
+
+
+    double_vector_free(&b);
+    double_vector_free(&c);
+    double_vector_free(&a);
+    double_vector_free(&d);
+
+    return MUNIT_OK;
+}
+
+static MunitResult test_double_vector_variance(const MunitParameter params[], void* user_data){
+    (void) params;
+    (void) user_data;
+
+    size_t size = 3;
+    double_vector_t v = double_vector_create(size);
+    double_vector_t small = double_vector_create(1);
+    double_vector_t empty = {0};
+    double result;
+
+    double v_vals[] = {1.0,2.0,3.0};
+    double_vector_fill_from_array(&v,v_vals,size);
+
+    double small_vals[] = {1.0};
+    double_vector_fill_from_array(&small,small_vals,2);
+
+    munit_assert_int(double_vector_variance(&v,&result), ==, 1);
+    munit_assert_double_equal(result, 1. , 6);
+
+    munit_assert_int(double_vector_variance(&v,NULL), ==, 0);
+    munit_assert_int(double_vector_variance(NULL,&result), ==, 0);
+    munit_assert_int(double_vector_variance(&empty,&result), ==, 0);
+    munit_assert_int(double_vector_variance(&small,&result), ==, 0);
+    
+    double_vector_free(&v);
+    double_vector_free(&small);
+
+    return MUNIT_OK;
+}
+
+
+
+static MunitResult test_double_vector_mean(const MunitParameter params[], void* user_data){
+    (void) params;
+    (void) user_data;
+
+    size_t size = 3;
+    double_vector_t v = double_vector_create(size);
+    double_vector_t empty = {0};
+    double result;
+
+    double v_vals[3] = {1.0,2.0,3.0};
+    double_vector_fill_from_array(&v,v_vals,size);
+
+    munit_assert_int(double_vector_mean(&v,&result), ==, 1);
+    munit_assert_double_equal(result, 2.0, 6);
+
+    munit_assert_int(double_vector_mean(&v,NULL), ==, 0);
+    munit_assert_int(double_vector_mean(NULL,&result), ==, 0);
+    munit_assert_int(double_vector_mean(&empty,&result), ==, 0);
+    
+    double_vector_free(&v);
+
+    return MUNIT_OK;
+}
+
+
+
+
+
 static MunitResult test_double_vector_sum(const MunitParameter params[], void* user_data){
     (void) params;
     (void) user_data;

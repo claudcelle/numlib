@@ -32,5 +32,13 @@ int double_vector_copy(const double_vector_t*, double_vector_t*);
 int double_vector_fill_const(double_vector_t *, double );
 
 int double_vector_sum(const double_vector_t*, double*);
+int double_vector_mean(const double_vector_t *, double *);
+int double_vector_variance(const double_vector_t *, double *);
+
+int double_vector_min(const double_vector_t *v, double *out);
+int double_vector_max(const double_vector_t *v, double *out);
+int double_vector_argmin(const double_vector_t *v, size_t *idx);
+int double_vector_argmax(const double_vector_t *v, size_t *idx);
+
 
 #endif

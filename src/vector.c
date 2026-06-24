@@ -221,3 +221,112 @@ int double_vector_sum(const double_vector_t* v, double* result){
     *result = sum;
     return 1;
 }
+
+int double_vector_mean(const double_vector_t *v, double *out){
+    if (!double_vector_is_valid(v) || out==NULL){
+        return 0;
+    }
+
+    double sum = 0.;
+    for (size_t i=0;i<v->size;i++){
+        sum += v->data[i];
+    }
+    *out = sum/v->size;
+
+    return 1;
+}
+
+
+int double_vector_variance(const double_vector_t *v, double *out){
+    if(!double_vector_is_valid(v) || out==NULL || v->size<2){
+        return 0;
+    }
+
+
+    double sum = 0.;
+    double mean;
+    double_vector_mean(v,&mean);
+    for (size_t i=0;i<v->size;i++){
+        sum += (v->data[i]-mean)*(v->data[i]-mean);
+    }
+    double len = (double)(v->size-1.);
+    *out = sum/(len);
+
+    return 1;
+}
+
+static double double_vector_min_range(const double_vector_t *v, size_t start,size_t end){
+    if (end-start == 1){
+        return v->data[start];
+    }
+    size_t mid = start+(end-start)/2;
+    double left = double_vector_min_range(v,start,mid);
+    double right = double_vector_min_range(v,mid,end);
+    return left<right?left:right;
+}
+
+int double_vector_min(const double_vector_t *v, double *out){
+    if(!double_vector_is_valid(v) || out==NULL){
+        return 0;      
+    }
+    double min = double_vector_min_range(v,0,v->size); 
+    *out = min;
+
+    return 1;
+}
+
+static double double_vector_max_range(const double_vector_t *v, size_t start,size_t end){
+    if (end-start == 1){
+        return v->data[start];
+    }
+    size_t mid = start+(end-start)/2;
+    double left = double_vector_max_range(v,start,mid);
+    double right = double_vector_max_range(v,mid,end);
+    return left>right?left:right;
+}
+int double_vector_max(const double_vector_t *v, double *out){
+    if(!double_vector_is_valid(v) || out==NULL){
+        return 0;   
+    }
+    double max = double_vector_max_range(v,0,v->size);
+    *out = max;
+    return 1;
+}
+
+static size_t double_vector_argmin_range(const double_vector_t *v, size_t start,size_t end){
+    if (end-start == 1){
+        return start;
+    }
+    size_t mid   = start+(end-start)/2;
+    size_t left  = double_vector_argmin_range(v,start,mid);
+    size_t right = double_vector_argmin_range(v,mid,end);
+    return v->data[left]<=v->data[right]?left:right;
+}
+
+int double_vector_argmin(const double_vector_t *v, size_t *idx){
+    if(!double_vector_is_valid(v) || idx==NULL){
+        return 0;   
+    }
+    size_t argmin = double_vector_argmin_range(v,0,v->size);
+    *idx = argmin;
+    return 1;
+}
+
+static size_t double_vector_argmax_range(const double_vector_t *v, size_t start,size_t end){
+    if (end-start == 1){
+        return start;
+    }
+    size_t mid   = start+(end-start)/2;
+    size_t left  = double_vector_argmax_range(v,start,mid);
+    size_t right = double_vector_argmax_range(v,mid,end);
+    return v->data[left]>=v->data[right]?left:right;
+}
+int double_vector_argmax(const double_vector_t *v, size_t *idx){
+    if(!double_vector_is_valid(v) || idx==NULL){
+            return 0;   
+    }
+    size_t argmax = double_vector_argmax_range(v,0,v->size);
+    *idx = argmax;
+
+    return 1;
+}
